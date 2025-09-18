@@ -1,0 +1,106 @@
+<html>
+<head>
+    <title>WANDERING OLDMAN AIS</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no">
+    <link rel="stylesheet" type="text/css" href="/clap.css">
+    <script src="//cdn.jsdelivr.net/npm/@clappr/player@0.4.0/dist/clappr.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/mux.js@5.6.7/dist/mux.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/level-selector@latest/dist/level-selector.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/clappr-chromecast-plugin@latest/dist/clappr-chromecast-plugin.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/clappr-pip@latest/dist/clappr-pip.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/clappr-playback-rate-plugin@latest/dist/clappr-playback-rate-plugin.min.js"></script>
+    <style>
+        body {
+            background-color: #000000;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        #player {
+            border-radius: 1rem;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        /* Custom Clappr Skin Styles */
+        .clappr-player-skin {
+            color: #fff;
+        }
+        .clappr-core-media-control-panel {
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border-top: none;
+        }
+        .clappr-core-media-control-panel .clappr-core-media-control-button {
+            background: transparent;
+            border: none;
+            color: #fff;
+            transition: all 0.2s ease;
+        }
+        .clappr-core-media-control-panel .clappr-core-media-control-button:hover {
+            color: #00bfff;
+        }
+        .clappr-core-media-control-panel .clappr-core-media-control-seek-bar-container {
+            height: 8px;
+            margin: 0 10px;
+        }
+        .clappr-core-media-control-panel .clappr-core-media-control-seek-bar-background {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        .clappr-core-media-control-panel .clappr-core-media-control-seek-bar-fill {
+            background-color: #00bfff;
+            border-radius: 4px;
+        }
+        .clappr-core-media-control-panel .clappr-core-media-control-volume-bar-background {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        .clappr-core-media-control-panel .clappr-core-media-control-volume-bar-fill {
+            background-color: #00bfff;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="player"></div>
+    <script>
+        const VIDEO_POSITION_KEY = 'familytv-playback-position';
+        let player;
+        window.addEventListener('beforeunload', () => {
+            if (player) {
+                localStorage.setItem(VIDEO_POSITION_KEY, player.getCurrentTime());
+            }
+        });
+        window.onload = function () {
+            const savedPosition = parseFloat(localStorage.getItem(VIDEO_POSITION_KEY) || '0');
+            player = new Clappr.Player({
+                source: 'https://live-cdn.ch7.com/out/v1/eafeb02c55b64a15b278b1e66c7fc776/playlist_9.m3u8',
+                mimeType: 'application/x-mpegURL',
+                height: '100%',
+                width: '100%',
+                autoPlay: true,
+                plugins: [LevelSelector, Clappr.MediaControl],
+                events: {
+                    onReady: function () {
+                        const plugin = this.getPlugin('click_to_pause');
+                        if (plugin) plugin.disable();
+                        if (savedPosition > 0) {
+                            console.log('Resuming playback from', savedPosition, 'seconds');
+                            this.seek(savedPosition);
+                        }
+                    },
+                    onEnded: function() {
+                        localStorage.removeItem(VIDEO_POSITION_KEY);
+                    }
+                },
+                parentId: '#player'
+            });
+        };
+    </script>
+    <span style='position:absolute;bottom:10px;right:20px;font-size: 15px; font-weight: bold;color: #3b82f6;'>
+        <em>แฟมิลี่ทีวี</em>
+    </span>
+</body>
+</html>
