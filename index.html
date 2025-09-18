@@ -4,13 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no">
     <link rel="stylesheet" type="text/css" href="/clap.css">
     <script src="//cdn.jsdelivr.net/npm/@clappr/player@0.4.0/dist/clappr.min.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/mux.js@5.6.7/dist/mux.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/level-selector@latest/dist/level-selector.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/clappr-chromecast-plugin@latest/dist/clappr-chromecast-plugin.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/clappr-pip@latest/dist/clappr-pip.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/clappr-playback-rate-plugin@latest/dist/clappr-playback-rate-plugin.min.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/shaka-player@2.5.10/dist/shaka-player.compiled.min.js"></script>
-    <script src="//cdn.jsdelivr.net/gh/clappr/dash-shaka-playback@latest/dist/dash-shaka-playback.external.min.js"></script>
     <style>
         body {
             background-color: #000000;
@@ -24,7 +21,6 @@
             width: 100vw;
             height: 100vh;
         }
-        /* Custom Clappr Skin Styles */
         .clappr-player-skin { color: #fff; }
         .clappr-core-media-control-panel {
             background-color: rgba(0, 0, 0, 0.4);
@@ -68,16 +64,6 @@
         const VIDEO_POSITION_KEY = 'familytv-playback-position';
         let player;
 
-        // ฟังก์ชันเลือก MIME type อัตโนมัติ
-        function getMimeType(url) {
-            if (url.endsWith('.m3u8')) return 'application/x-mpegURL';
-            if (url.endsWith('.mpd')) return 'application/dash+xml';
-            return '';
-        }
-
-        // ใส่ลิงก์ที่นี่
-        const streamUrl = 'https://FLTV999.short.gy/CH-7 HD.m3u8';
-        
         window.addEventListener('beforeunload', () => {
             if (player) {
                 localStorage.setItem(VIDEO_POSITION_KEY, player.getCurrentTime());
@@ -87,12 +73,12 @@
         window.onload = function () {
             const savedPosition = parseFloat(localStorage.getItem(VIDEO_POSITION_KEY) || '0');
             player = new Clappr.Player({
-                source: streamUrl,
-                mimeType: getMimeType(streamUrl),
+                source: 'https://lb1-live-mv.v2h-cdn.com/hls/ffac/gohg/gohg.m3u8',
+                mimeType: 'application/x-mpegURL',
                 height: '100%',
                 width: '100%',
                 autoPlay: true,
-                plugins: [LevelSelector, DashShakaPlayback, Clappr.MediaControl],
+                plugins: [LevelSelector, Clappr.MediaControl],
                 events: {
                     onReady: function () {
                         const plugin = this.getPlugin('click_to_pause');
@@ -105,6 +91,10 @@
                     onEnded: function() {
                         localStorage.removeItem(VIDEO_POSITION_KEY);
                     }
+                },
+                chromecast: {
+                    preload: 'metadata',
+                    contentType: 'application/x-mpegURL',
                 },
                 parentId: '#player'
             });
